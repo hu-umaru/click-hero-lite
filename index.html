@@ -58,6 +58,177 @@
   .boss{color:#fca5a5;font-weight:800}
   .tiny{font-size:11px;color:#94a3b8}
   .timer{padding:4px 8px;border-radius:10px;background:#1b2536;border:1px solid #2a3b54}
+
+/* --- 新しいモンスターデザイン --- */
+
+/* コウモリ (bat) - 暗い、赤い目、鋭い牙 */
+.monster.bat{
+  background: linear-gradient(145deg, #181824, #121218); /* 黒っぽい */
+}
+.monster.bat .eye{
+  background: #f87171; /* 赤い目 */
+}
+.monster.bat .eye::after{
+  background: #000;
+  width: 8px; /* 瞳を小さく */
+  height: 8px;
+  left: 9px;
+  top: 9px;
+}
+.monster.bat .fang span{
+  height: 20px; /* 牙を長く */
+}
+
+/* スケルトン (skeleton) - 白い、空洞の目 */
+.monster.skeleton{
+  background: linear-gradient(145deg, #9ca3af, #52525b); /* 骨の色 */
+}
+.monster.skeleton .eye{
+  background: #000; /* 目を空洞に */
+  border: 4px solid #fff;
+}
+.monster.skeleton .eye::after{
+  display: none; /* 瞳を消す */
+}
+.monster.skeleton .fang span{
+  background: #e5e7eb; /* 牙を白く */
+}
+
+/* オーク (orc) - 緑、太い牙 */
+.monster.orc{
+  background: linear-gradient(145deg, #4d7c0f, #365314); /* オークグリーン */
+}
+.monster.orc .eye{
+  background: #fbbf24; /* 黄色い目 */
+}
+.monster.orc .eye::after{
+  background: #000;
+  width: 10px;
+  height: 10px;
+  left: 8px;
+  top: 8px;
+}
+.monster.orc .fang{
+  bottom: 30px; /* 牙の位置を少し上げる */
+}
+.monster.orc .fang span{
+  width: 14px; /* 牙を太く */
+  height: 20px; /* 牙を長く */
+}
+
+/* ウルフ (wolf) - 灰色、鋭い目 */
+.monster.wolf{
+  background: linear-gradient(145deg, #374151, #1f2937); /* グレー */
+}
+.monster.wolf .eye{
+  background: #fcd34d; /* 琥珀色 */
+}
+.monster.wolf .eye::after{
+  background: #111;
+  width: 8px;
+  height: 14px; /* 瞳を縦長に */
+  top: 6px;
+  left: 9px;
+}
+
+/* ゴブリン (goblin) - 黄緑、ずる賢い目 */
+.monster.goblin{
+  background: linear-gradient(145deg, #65a30d, #4d7c0f); /* 鮮やかな緑 */
+}
+.monster.goblin .eye{
+  width: 20px;
+  height: 20px;
+  background: #fff;
+}
+.monster.goblin .eye::after{
+  background: #4d7c0f; /* 瞳の色も緑に */
+  width: 8px;
+  height: 8px;
+  left: 6px;
+  top: 6px;
+}
+.monster.goblin .fang span{
+  height: 12px; /* 牙を小さく */
+}
+
+/* シャドウ (shadow) - 影、光る目 */
+.monster.shadow{
+  background: linear-gradient(145deg, #0f172a, #0c101a); /* 超暗い色 */
+  border: 1px solid rgba(34,211,238,0.2); /* わずかに光る境界 */
+}
+.monster.shadow .eyes{
+  gap: 30px;
+}
+.monster.shadow .eye{
+  background: #22d3ee; /* シアンに光る目 */
+}
+.monster.shadow .eye::after{
+  display: none; /* 瞳を消す */
+}
+.monster.shadow .fang{
+  opacity: 0.5; /* 牙を半透明に */
+}
+
+/* ワイバーン (wyvern) - 青、派手な色 */
+.monster.wyvern{
+  background: linear-gradient(145deg, #0ea5e9, #0369a1); /* 鮮やかな青 */
+}
+.monster.wyvern .eye{
+  background: #fcd34d; /* 金色の目 */
+}
+.monster.wyvern .eye::after{
+  background: #111;
+  width: 6px;
+  height: 6px;
+  left: 10px;
+  top: 10px;
+}
+.monster.wyvern .fang span{
+  background: #fff;
+  width: 8px; /* 牙を細く */
+}
+
+/* ミノタウロス (minotaur) - 茶色、体が大きい */
+.monster.minotaur{
+  width: 260px; /* 体を大きく */
+  height: 260px;
+  background: linear-gradient(145deg, #7c2d12, #431407); /* 茶色 */
+}
+.monster-area{
+  min-height: 400px; /* モンスターエリアの最小高さを調整 */
+}
+.monster.minotaur .eyes{
+  gap: 16px;
+}
+.monster.minotaur .eye{
+  width: 30px;
+  height: 30px;
+  background: #facc15;
+}
+.monster.minotaur .eye::after{
+  width: 14px;
+  height: 14px;
+  left: 8px;
+  top: 8px;
+}
+
+/* ドラコ (draco) - 赤、縦長のスリットの目 */
+.monster.draco{
+  background: linear-gradient(145deg, #dc2626, #991b1b); /* ドラゴンレッド */
+}
+.monster.draco .eye{
+  background: #fcd34d; /* 金色の目 */
+  overflow: hidden;
+}
+.monster.draco .eye::after{
+  background: #111;
+  width: 4px; /* 瞳を非常に細く */
+  height: 20px;
+  left: 11px;
+  top: 3px;
+  border-radius: 0; /* 四角形にする */
+}
+  
 </style>
 </head>
 <body>
@@ -133,7 +304,7 @@
   // ======= Game Data =======
   const BASE_HP = 10;
   const HP_GROWTH = 1.18; // per floor
-  const BOSS_HP_MULT = 6; // ↓ ボスHPをやや低下
+  const BOSS_HP_MULT = 5; // ボスHP(倍率)
   const BOSS_TIMER_SEC = 20; // ボス制限時間（秒）
   const BOSS_REWARD_GEMS = f=> 1 + Math.floor(f/25); // simple formula
   const GOLD_REWARD = f=> 1 + Math.floor(Math.pow(f,1.25));
@@ -163,7 +334,7 @@
   // ドロップアイテム（恒久）
   const ITEMS = [
     { key:"fang", name:"シャープファング", desc:"クリックダメージ +5%", type:"click", per:0.05 },
-    { key:"charm", name:"ラッキーチャーム", desc:"コイン獲得 +5%", type:"gold", per:0.05 },
+    { key:"charm", name:"ラッキーメダル🎖️", desc:"コイン獲得 +5%", type:"gold", per:0.05 },
     { key:"cog", name:"エンシェントコグ", desc:"DPS +5%", type:"dps", per:0.05 },
   ];
 
@@ -250,6 +421,28 @@
     S.monsterMax = floorMonsterHP(S.floor);
     S.monsterHP = S.monsterMax;
     if(S.isBoss){ S.bossTimeLeft = BOSS_TIMER_SEC; } else { S.bossTimeLeft = 0; }
+    
+    // 現在のフロアに対応するモンスター名を取得
+    const monsterKey = monsters[(S.floor-1) % monsters.length];
+    
+    // モンスター名とCSSクラス名の対応表
+    const monsterClassMap = {
+      "スライム": "",
+      "コウモリ": "bat",
+      "スケルトン": "skeleton",
+      "オーク": "orc",
+      "ウルフ": "wolf",
+      "ゴブリン": "goblin",
+      "シャドウ": "shadow",
+      "ワイバーン": "wyvern",
+      "ミノタウロス": "minotaur",
+      "ドラコ": "draco",
+    };
+    
+    // 対応するCSSクラス名を取得して適用
+    const designClass = monsterClassMap[monsterKey] || '';
+    monsterEl.className = 'monster ' + designClass; 
+
     uiMonster();
   }
 
@@ -378,18 +571,38 @@
     for(const m of MERCS){
       const lvl = S.mercs[m.key]||0;
       const each = m.baseDps;
+      
+      // [傭兵ボタンのテキスト切り替え]
       const buttonText = lvl === 0 ? "雇用" : "強化";
+      
       const cost = costFor(m.baseCost, m.growth, lvl);
       const canBuy = S.coins >= cost;
+      
+      // [大強化の表示ロジック]
+      // DPS計算自体は元のロジックを維持し、累積倍率を算出
       const boosts = Math.floor(lvl/10);
       const mult = Math.pow(1.1, boosts);
       const total = each*lvl*mult;
+
+      let boostText = '';
+      // 現在のレベルが10の倍数に達した時（Lv.10, Lv.20, ...）のみ「大強化！」を表示
+      if (lvl > 0 && lvl % 10 === 0) {
+          // CSSで強調するために<span>タグで囲む
+          boostText = ' <span style="color:var(--accent);font-weight:700">大強化！</span>';
+      }
+      
+      // 累計倍率(x...)は、ボーナスを獲得したレベルからは常に表示
+      const cumulativeMultText = boosts > 0 ? ` (x${(mult).toFixed(2)})` : '';
+      
+      // Lv.ステータスに結合
+      const statusText = cumulativeMultText + boostText;
+
       const row = document.createElement('div');
       row.className = 'row';
       row.innerHTML = `
         <div class="meta">
-          <div><b>${m.name}</b> <span class="small">Lv.${lvl}${boosts>0? `（大強化×${boosts} / x${(mult).toFixed(2)}）`:''}</span></div>
-          <div class="small">+${fmt(each)} DPS/Lv <br>合計: <b>${fmt(total)}</b> DPS</div>
+          <div><b>${m.name}</b> <span class="small">Lv.${lvl}${statusText}</span></div>
+          <div class="small">+${fmt(each)} DPS /Lv ・<br>合計: <b>${fmt(total)}</b> DPS</div>
           <div class="cost">コスト: ${fmt(cost)}💰</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
