@@ -60,7 +60,6 @@
   .timer{padding:4px 8px;border-radius:10px;background:#1b2536;border:1px solid #2a3b54}
 
 /* --- 新しいモンスターデザイン --- */
-
 /* コウモリ (bat) - 暗い、赤い目、鋭い牙 */
 .monster.bat{
   background: linear-gradient(145deg, #181824, #121218); /* 黒っぽい */
@@ -78,7 +77,6 @@
 .monster.bat .fang span{
   height: 20px; /* 牙を長く */
 }
-
 /* スケルトン (skeleton) - 白い、空洞の目 */
 .monster.skeleton{
   background: linear-gradient(145deg, #9ca3af, #52525b); /* 骨の色 */
@@ -93,7 +91,6 @@
 .monster.skeleton .fang span{
   background: #e5e7eb; /* 牙を白く */
 }
-
 /* オーク (orc) - 緑、太い牙 */
 .monster.orc{
   background: linear-gradient(145deg, #4d7c0f, #365314); /* オークグリーン */
@@ -115,7 +112,6 @@
   width: 14px; /* 牙を太く */
   height: 20px; /* 牙を長く */
 }
-
 /* ウルフ (wolf) - 灰色、鋭い目 */
 .monster.wolf{
   background: linear-gradient(145deg, #374151, #1f2937); /* グレー */
@@ -130,7 +126,6 @@
   top: 6px;
   left: 9px;
 }
-
 /* ゴブリン (goblin) - 黄緑、ずる賢い目 */
 .monster.goblin{
   background: linear-gradient(145deg, #65a30d, #4d7c0f); /* 鮮やかな緑 */
@@ -150,7 +145,6 @@
 .monster.goblin .fang span{
   height: 12px; /* 牙を小さく */
 }
-
 /* シャドウ (shadow) - 影、光る目 */
 .monster.shadow{
   background: linear-gradient(145deg, #0f172a, #0c101a); /* 超暗い色 */
@@ -168,7 +162,6 @@
 .monster.shadow .fang{
   opacity: 0.5; /* 牙を半透明に */
 }
-
 /* ワイバーン (wyvern) - 青、派手な色 */
 .monster.wyvern{
   background: linear-gradient(145deg, #0ea5e9, #0369a1); /* 鮮やかな青 */
@@ -187,7 +180,6 @@
   background: #fff;
   width: 8px; /* 牙を細く */
 }
-
 /* ミノタウロス (minotaur) - 茶色、体が大きい */
 .monster.minotaur{
   width: 260px; /* 体を大きく */
@@ -211,7 +203,6 @@
   left: 8px;
   top: 8px;
 }
-
 /* ドラコ (draco) - 赤、縦長のスリットの目 */
 .monster.draco{
   background: linear-gradient(145deg, #dc2626, #991b1b); /* ドラゴンレッド */
@@ -271,7 +262,7 @@
       <h1>傭兵（DPS）</h1>
       <div class="shop-list" id="mercList"></div>
       <div class="hr"></div>
-      <h1>コイン強化（任意）</h1>
+      <h1>コイン強化</h1>
       <div class="upgrade-list" id="coinUpList"></div>
       <div class="hr"></div>
       <h1>ジェム恒久強化</h1>
@@ -318,7 +309,7 @@
   const BOSS_REWARD_GEMS = f=> 1 + Math.floor(f/25); // simple formula
   const GOLD_REWARD = f=> 1 + Math.floor(Math.pow(f,1.25));
   const REBIRTH_MIN_FLOOR = 50;
-  const ITEM_DROP_RATE = 0.01; // アイテムのドロップ率 1%
+  const ITEM_DROP_RATE = 0.03; // アイテムのドロップ率 3%
 
   // コインアップ・ジェムアップ
   const COIN_UPS = [
@@ -494,10 +485,10 @@
 
   // ======= Boss Timeout / Surrender =======
   function onBossTimeout(){
-    // ボス撃破に失敗：5つ前の通常階に戻す
-    const prev = Math.max(1, S.floor-5);
+    // ボス撃破に失敗：9つ前の通常階に戻す
+    const prev = Math.max(1, S.floor-9);
     S.floor = prev;
-    flash('ボス撃破失敗… 5フロア戻りました');
+    flash('ボス撃破失敗… 9フロア戻りました');
     spawnMonster();
   }
   
@@ -666,7 +657,7 @@
           <div><b>${u.name}</b> <span class="small">Lv.${lvl}</span> <span class="tiny">(${u.desc})</span></div>
           <div class="cost">コスト: ${fmt(cost)}💎</div>
         </div>
-        <button class="btn ${can?'warn':''}" ${can?'':'disabled'}>恒久強化</button>`;
+        <button class="btn ${can?'warn':''}" ${can?'':'disabled'}>強化</button>`;
       row.querySelector('button').onclick = ()=>{
         if(S.gems < cost) return;
         S.gems -= cost;
