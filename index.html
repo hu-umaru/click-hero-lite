@@ -466,6 +466,7 @@
     }
     S.bestFloor = Math.max(S.bestFloor, S.floor+1);
     nextFloor();
+    uiTop();
   }
 
   function hit(amount){
@@ -591,7 +592,7 @@
       row.innerHTML = `
         <div class="meta">
           <div><b>${m.name}</b> <span class="small">Lv.${lvl}${statusText}</span></div>
-          <div class="small">+${fmt(each)} DPS/Lv (x${(mult).toFixed(2)}) <br>合計: <b>${fmt(total)}</b> DPS</div>
+          <div class="small">+${fmt(each)} DPS/Lv <br>合計: <b>${fmt(total)}</b> DPS</div>
           <div class="cost">コスト: ${fmt(cost)}💰</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
