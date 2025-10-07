@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Click Hero Lite</title>
+<style>
+  :root{
+    --bg:#0f172a; /* slate-900 */
+    --panel:#111827; /* gray-900 */
+    --soft:#1f2937; /* gray-800 */
+    --text:#e5e7eb; /* gray-200 */
+    --muted:#9ca3af; /* gray-400 */
+    --accent:#22d3ee; /* cyan-400 */
+    --good:#34d399; /* emerald-400 */
+    --warn:#fbbf24; /* amber-400 */
+    --danger:#f87171; /* red-400 */
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0b1223,#0f172a 40%,#0b1223);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Hiragino Sans","Noto Sans JP","Noto Sans",sans-serif}
+  .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
+  header{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;margin-bottom:12px}
+  .stat{background:var(--panel);padding:10px 12px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,0.25);display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .pill{padding:6px 10px;border-radius:999px;background:var(--soft);font-weight:700}
+  .btn{cursor:pointer;border:0;padding:10px 14px;border-radius:12px;background:var(--soft);color:var(--text);font-weight:700;transition:transform .04s ease,filter .2s;}
+  .btn:hover{filter:brightness(1.15)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:linear-gradient(135deg,#06b6d4,#22d3ee)}
+  .btn.good{background:linear-gradient(135deg,#10b981,#34d399)}
+  .btn.warn{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#111}
+  .btn.danger{background:linear-gradient(135deg,#ef4444,#f87171)}
+  .grid{display:grid;grid-template-columns:1.1fr .6fr .6fr;gap:16px}
+  .card{background:var(--panel);border:1px solid #1f2937;padding:16px;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+  h1{font-size:20px;margin:0 0 10px 0}
+  h2{font-size:16px;margin:0 0 10px 0;color:var(--muted)}
+  .monster-area{display:grid;place-items:center;min-height:360px;background:radial-gradient(1200px 400px at 50% 0%,rgba(34,211,238,0.08),transparent);border:1px solid #1e293b;border-radius:16px}
+  .monster{width:220px;height:220px;border-radius:24px;background:linear-gradient(145deg,#172554,#1f2937);display:grid;place-items:center;position:relative;cursor:pointer;user-select:none}
+  .monster:hover{box-shadow:0 0 0 2px rgba(34,211,238,.2) inset,0 12px 30px rgba(0,0,0,.35)}
+  .monster:active{transform:scale(.99)}
+  .monster .eyes{display:flex;gap:22px}
+  .eye{width:26px;height:26px;border-radius:50%;background:#e5e7eb;position:relative}
+  .eye::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:#111;left:7px;top:7px}
+  .fang{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);display:flex;gap:12px}
+  .fang span{width:10px;height:16px;background:#e5e7eb;clip-path:polygon(0 0,100% 0,50% 100%)}
+  .monster .name{position:absolute;top:10px;left:0;right:0;text-align:center;font-weight:800;color:#a5b4fc}
+  .hpbar{width:90%;height:16px;background:#0b1223;border:1px solid #1e293b;border-radius:999px;overflow:hidden;position:absolute;bottom:10px;left:5%}
+  .hpfill{height:100%;background:linear-gradient(90deg,#10b981,#22d3ee);width:100%}
+  .hptext{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:12px;color:#cbd5e1}
+  .floating{position:absolute;pointer-events:none;font-weight:900;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.35)}
+  .shop-list,.upgrade-list,.inv-list{display:grid;gap:10px;max-height:480px;overflow:auto;padding-right:6px}
+  .row{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--soft);border:1px solid #293548;border-radius:12px;padding:10px 12px}
+  .row .meta{display:flex;flex-direction:column}
+  .cost{color:var(--muted)}
+  .small{font-size:12px;color:var(--muted)}
+  .kbd{background:#0b1223;border:1px solid #1e293b;border-radius:8px;padding:2px 6px;font-size:12px}
+  footer{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+  .hr{height:1px;background:#243042;margin:12px 0}
+  .boss{color:#fca5a5;font-weight:800}
+  .tiny{font-size:11px;color:#94a3b8}
+  .timer{padding:4px 8px;border-radius:10px;background:#1b2536;border:1px solid #2a3b54}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="stat" id="topStats">
+      <div><span class="pill">フロア <span id="floor">1</span><span id="bossFlag" class="pill" style="margin-left:8px;display:none;background:#3b1f2b;color:#fda4af">BOSS</span></span></div>
+      <div>💰 コイン: <b id="coins">0</b></div>
+      <div>💎 ジェム: <b id="gems">0</b></div>
+      <div>🗡 クリック: <b id="clickDmg">1</b>/hit</div>
+      <div>⚔ DPS: <b id="dps">0</b>/s</div>
+      <div id="bossTimerWrap" style="display:none">⏱ 残り: <span id="bossTimer" class="timer">--</span></div>
+    </div>
+    <button class="btn" id="saveBtn">保存</button>
+    <button class="btn danger" id="wipeBtn" title="セーブデータを削除">リセット</button>
+  </header>
+
+  <div class="grid">
+    <div class="card monster-area">
+      <div>
+        <h1 id="monsterTitle">スライム (Lv.1)</h1>
+        <div class="small">倒すと <span id="goldReward">1</span> コイン獲得</div>
+      </div>
+      <div class="monster" id="monster">
+        <div class="name" id="monsterName">スライム</div>
+        <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+        <div class="fang"><span></span><span></span></div>
+        <div class="hpbar"><div class="hpfill" id="hpFill"></div></div>
+        <div class="hptext" id="hpText">HP 10 / 10</div>
+      </div>
+      <footer>
+        <button class="btn primary" id="attackBtn">クリック攻撃 (スペース)</button>
+        <button class="btn good" id="nextBtn" title="今の敵をスキップ">▶ 次のフロア</button>
+        <button class="btn warn" id="rebirthBtn" disabled>転生 (ジェム獲得)</button>
+        <span class="tiny" id="rebirthInfo">転生はフロア50以上で解放</span>
+      </footer>
+    </div>
+
+    <div class="card">
+      <h1>傭兵（DPS）</h1>
+      <div class="shop-list" id="mercList"></div>
+      <div class="hr"></div>
+      <h1>コイン強化（任意）</h1>
+      <div class="upgrade-list" id="coinUpList"></div>
+      <div class="hr"></div>
+      <h1>ジェム恒久強化</h1>
+      <div class="upgrade-list" id="gemUpList"></div>
+    </div>
+
+    <div class="card">
+      <h1>アイテム図鑑（恒久効果）</h1>
+      <div class="small">ボス以外の敵から低確率でドロップ。重複で効果加算（永続）。</div>
+      <div class="inv-list" id="invList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ======= Utility =======
+  const fmtI = n=> Math.floor(n).toLocaleString();
+  const fmt = n=>{
+    if(n<1000) return Math.floor(n).toString();
+    const units = ["","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No"]; // enough for demo
+    let idx=0; let val=n;
+    while(val>=1000 && idx<units.length-1){val/=1000; idx++;}
+    return (Math.floor(val*10)/10).toLocaleString()+units[idx];
+  }
+  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+  const rand=()=>Math.random();
+  const choice=arr=>arr[Math.floor(Math.random()*arr.length)];
+
+  // ======= Game Data =======
+  const BASE_HP = 10;
+  const HP_GROWTH = 1.18; // per floor
+  const BOSS_HP_MULT = 6; // ↓ ボスHPをやや低下
+  const BOSS_TIMER_SEC = 20; // ボス制限時間（秒）
+  const BOSS_REWARD_GEMS = f=> 1 + Math.floor(f/25); // simple formula
+  const GOLD_REWARD = f=> 1 + Math.floor(Math.pow(f,1.25));
+  const REBIRTH_MIN_FLOOR = 50;
+  const ITEM_DROP_RATE = 0.06; // 6% くらい
+
+  // コインアップ・ジェムアップ
+  const COIN_UPS = [
+    { key:"clickLvl", name:"武器強化", desc:"クリックダメージ+1", baseCost: 25, growth:1.15 },
+    { key:"goldBoostLvl", name:"金策", desc:"コイン獲得+10%", baseCost: 100, growth:1.17 },
+  ];
+  const GEM_UPS = [
+    { key:"clickGem", name:"覇気", desc:"クリックダメージ +25%/Lv (恒久)", baseCost: 5, growth: 1.8, type:"multClick", per:0.25 },
+    { key:"dpsGem", name:"戦術", desc:"DPS +20%/Lv (恒久)", baseCost: 5, growth: 1.8, type:"multDps", per:0.20 },
+    { key:"goldGem", name:"強欲", desc:"コイン +15%/Lv (恒久)", baseCost: 5, growth: 1.8, type:"multGold", per:0.15 },
+  ];
+
+  // 傭兵（10Lvごとに+10%の大強化：総DPS倍率 1.1^(floor(Lv/10)) ）
+  const MERCS = [
+    { key:"slasher", name:"スラッシャー", baseDps:1, baseCost: 10, growth:1.12 },
+    { key:"archer", name:"アーチャー", baseDps:8, baseCost: 80, growth:1.12 },
+    { key:"mage", name:"メイジ", baseDps:50, baseCost: 500, growth:1.13 },
+    { key:"ninja", name:"ニンジャ", baseDps:300, baseCost: 3000, growth:1.14 },
+    { key:"golem", name:"ゴーレム", baseDps:2000, baseCost: 20000, growth:1.15 },
+  ];
+
+  // ドロップアイテム（恒久）
+  const ITEMS = [
+    { key:"fang", name:"シャープファング", desc:"クリックダメージ +5%", type:"click", per:0.05 },
+    { key:"charm", name:"ラッキーチャーム", desc:"コイン獲得 +5%", type:"gold", per:0.05 },
+    { key:"cog", name:"エンシェントコグ", desc:"DPS +5%", type:"dps", per:0.05 },
+  ];
+
+  const monsters = ["スライム","コウモリ","スケルトン","オーク","ウルフ","ゴブリン","シャドウ","ワイバーン","ミノタウロス","ドラコ" ];
+
+  // ======= State =======
+  const S = {
+    coins: 0,
+    gems: 0,
+    floor: 1,
+    monsterHP: BASE_HP,
+    monsterMax: BASE_HP,
+    isBoss: false,
+    bossTimeLeft: 0,
+    mercs: {}, // key -> level
+    coinUps: {}, // key -> level
+    gemUps: {}, // key -> level (persistent across rebirth)
+    items: {}, // key -> count (永久)
+    unspentBossGems: 0,
+    bestFloor: 1,
+  };
+
+  // init collections
+  MERCS.forEach(m=> S.mercs[m.key]=0);
+  COIN_UPS.forEach(u=> S.coinUps[u.key]=0);
+  GEM_UPS.forEach(u=> S.gemUps[u.key]=0);
+  ITEMS.forEach(it=> S.items[it.key]=S.items[it.key]||0);
+
+  // ======= Persistence =======
+  const save=()=>{ localStorage.setItem("clickHeroLite.save", JSON.stringify(S)); }
+  const load=()=>{
+    const raw = localStorage.getItem("clickHeroLite.save");
+    if(!raw) return;
+    try{
+      const d = JSON.parse(raw);
+      Object.assign(S,d);
+      MERCS.forEach(m=> S.mercs[m.key] ??= 0);
+      COIN_UPS.forEach(u=> S.coinUps[u.key] ??= 0);
+      GEM_UPS.forEach(u=> S.gemUps[u.key] ??= 0);
+      ITEMS.forEach(it=> S.items[it.key] ??= 0);
+    }catch(e){console.warn("Load failed",e)}
+  }
+
+  // ======= Calculations =======
+  function floorIsBoss(f){ return f % 10 === 0; }
+  function floorMonsterHP(f){
+    const hp = BASE_HP * Math.pow(HP_GROWTH, f-1);
+    return Math.floor(hp * (floorIsBoss(f) ? BOSS_HP_MULT : 1));
+  }
+  function mercDpsOf(m){
+    const lvl = S.mercs[m.key]||0;
+    if(lvl<=0) return 0;
+    const bigBoosts = Math.floor(lvl/10);
+    const mult = Math.pow(1.1, bigBoosts); // 10Lvごと+10%
+    return m.baseDps * lvl * mult;
+  }
+  function totalDps(){
+    let dps=0;
+    for(const m of MERCS){ dps += mercDpsOf(m); }
+    // item & gem multipliers
+    const itemMul = 1 + (S.items.cog||0) * getItem('cog').per;
+    const gemMul = 1 + (S.gemUps["dpsGem"]||0) * getGemUp("dpsGem").per;
+    return Math.floor(dps * itemMul * gemMul);
+  }
+  function clickDamage(){
+    const base = 1 + (S.coinUps["clickLvl"]||0);
+    const gemMul = 1 + (S.gemUps["clickGem"]||0) * getGemUp("clickGem").per;
+    const itemMul = 1 + (S.items.fang||0) * getItem('fang').per;
+    return Math.max(1, Math.floor(base * gemMul * itemMul));
+  }
+  function goldGain(base){
+    const coinMul = 1 + (S.coinUps["goldBoostLvl"]||0) * 0.10;
+    const gemMul = 1 + (S.gemUps["goldGem"]||0) * getGemUp("goldGem").per;
+    const itemMul = 1 + (S.items.charm||0) * getItem('charm').per;
+    return Math.floor(base * coinMul * gemMul * itemMul);
+  }
+  function costFor(base,growth,level){ return Math.floor(base * Math.pow(growth, level)); }
+  function getGemUp(k){ return GEM_UPS.find(x=>x.key===k); }
+  function getItem(k){ return ITEMS.find(x=>x.key===k); }
+
+  // ======= Monster =======
+  function spawnMonster(){
+    S.isBoss = floorIsBoss(S.floor);
+    S.monsterMax = floorMonsterHP(S.floor);
+    S.monsterHP = S.monsterMax;
+    if(S.isBoss){ S.bossTimeLeft = BOSS_TIMER_SEC; } else { S.bossTimeLeft = 0; }
+    uiMonster();
+  }
+
+  // ======= Combat & Drops =======
+  function onKill(){
+    const reward = goldGain(GOLD_REWARD(S.floor));
+    S.coins += reward;
+    if(S.isBoss){
+      const g = BOSS_REWARD_GEMS(S.floor);
+      S.gems += g; S.unspentBossGems += g;
+      flash(`BOSS 撃破！ +${g}💎, +${fmt(reward)}💰`);
+    } else {
+      // 低確率ドロップ
+      if(rand() < ITEM_DROP_RATE){
+        const it = choice(ITEMS);
+        S.items[it.key] = (S.items[it.key]||0) + 1;
+        flash(`📦 アイテム入手: ${it.name}（${it.desc}）`);
+      } else {
+        flash(`+${fmt(reward)} 💰`);
+      }
+    }
+    S.bestFloor = Math.max(S.bestFloor, S.floor+1);
+    nextFloor();
+  }
+
+  function hit(amount){
+    popFloat(`-${fmt(amount)}`);
+    S.monsterHP = clamp(S.monsterHP - amount, 0, S.monsterMax);
+    if(S.monsterHP<=0){ onKill(); }
+    uiAll();
+  }
+
+  function nextFloor(){
+    S.floor++;
+    spawnMonster();
+  }
+
+  // ======= Boss Timeout =======
+  function onBossTimeout(){
+    // ボス撃破に失敗：一つ前の通常階に戻す
+    const prev = Math.max(1, S.floor-1);
+    S.floor = prev;
+    flash('ボス撃破失敗… フロアを一段階戻りました');
+    spawnMonster();
+  }
+
+  // ======= Rebirth =======
+  function canRebirth(){ return S.floor >= REBIRTH_MIN_FLOOR; }
+  function previewRebirthGems(){
+    if(!canRebirth()) return 0;
+    return Math.floor((S.floor - REBIRTH_MIN_FLOOR + 10) / 10);
+  }
+  function doRebirth(){
+    if(!canRebirth()) return;
+    const gain = previewRebirthGems();
+    S.gems += gain;
+    S.unspentBossGems += gain;
+
+    // Runリセット（恒久：gemUps と items は維持）
+    S.coins = 0;
+    MERCS.forEach(m=> S.mercs[m.key]=0);
+    COIN_UPS.forEach(u=> S.coinUps[u.key]=0);
+    S.floor = 1;
+    spawnMonster();
+    flash(`転生完了！ +${gain}💎。恒久強化＆アイテムで再出発！`);
+    uiAll();
+    save();
+  }
+
+  // ======= UI =======
+  const el = s=> document.querySelector(s);
+  const topCoins = el('#coins');
+  const topGems = el('#gems');
+  const topClick = el('#clickDmg');
+  const topDps = el('#dps');
+  const floorEl = el('#floor');
+  const bossFlag = el('#bossFlag');
+  const bossTimerWrap = el('#bossTimerWrap');
+  const bossTimer = el('#bossTimer');
+  const monsterEl = el('#monster');
+  const hpFill = el('#hpFill');
+  const hpText = el('#hpText');
+  const monsterTitle = el('#monsterTitle');
+  const monsterName = el('#monsterName');
+  const goldReward = el('#goldReward');
+  const rebirthBtn = el('#rebirthBtn');
+  const rebirthInfo = el('#rebirthInfo');
+  const mercList = el('#mercList');
+  const coinUpList = el('#coinUpList');
+  const gemUpList = el('#gemUpList');
+  const invList = el('#invList');
+
+  function uiMonster(){
+    const name = monsters[(S.floor-1) % monsters.length];
+    monsterTitle.textContent = `${S.isBoss? '★ボス★ ' : ''}${name} (Lv.${S.floor})`;
+    monsterName.textContent = name + (S.isBoss? '・ボス':'' );
+    goldReward.textContent = fmt(GOLD_REWARD(S.floor));
+    bossFlag.style.display = S.isBoss? 'inline-block':'none';
+    bossTimerWrap.style.display = S.isBoss? 'inline-flex':'none';
+    updateHpBar();
+    updateBossTimer();
+  }
+  function updateHpBar(){
+    const pct = (S.monsterHP / S.monsterMax) * 100;
+    hpFill.style.width = `${pct}%`;
+    hpText.textContent = `HP ${fmt(S.monsterHP)} / ${fmt(S.monsterMax)}`;
+  }
+  function updateBossTimer(){
+    if(!S.isBoss){ bossTimer.textContent='--'; return; }
+    bossTimer.textContent = `${Math.ceil(S.bossTimeLeft)}s`;
+  }
+  function uiTop(){
+    topCoins.textContent = fmt(S.coins);
+    topGems.textContent = fmt(S.gems);
+    topClick.textContent = fmt(clickDamage());
+    topDps.textContent = fmt(totalDps());
+    floorEl.textContent = fmtI(S.floor);
+
+    const can = canRebirth();
+    rebirthBtn.disabled = !can;
+    rebirthBtn.title = can? `転生で +${previewRebirthGems()}💎 (傭兵/コイン強化は初期化, 恒久強化/アイテムは維持)` : `フロア${REBIRTH_MIN_FLOOR} で解放`;
+    rebirthInfo.textContent = can? `今転生すると +${previewRebirthGems()}💎` : `転生はフロア${REBIRTH_MIN_FLOOR}以上で解放`;
+  }
+  function uiMercs(){
+    mercList.innerHTML = '';
+    for(const m of MERCS){
+      const lvl = S.mercs[m.key]||0;
+      const each = m.baseDps;
+      const cost = costFor(m.baseCost, m.growth, lvl);
+      const canBuy = S.coins >= cost;
+      const boosts = Math.floor(lvl/10);
+      const mult = Math.pow(1.1, boosts);
+      const total = each*lvl*mult;
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <div class="meta">
+          <div><b>${m.name}</b> <span class="small">Lv.${lvl}${boosts>0? `（大強化×${boosts} / x${(mult).toFixed(2)}）`:''}</span></div>
+          <div class="small">+${fmt(each)} DPS /Lv ・ 合計: <b>${fmt(total)}</b> DPS</div>
+          <div class="cost">コスト: ${fmt(cost)}💰</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn ${canBuy?'good':''}" ${canBuy?'':'disabled'} data-key="${m.key}">雇用/強化</button>
+        </div>`;
+      row.querySelector('button').onclick = ()=>{
+        if(S.coins < cost) return;
+        S.coins -= cost;
+        S.mercs[m.key] = (S.mercs[m.key]||0) + 1;
+        uiAll();
+      };
+      mercList.appendChild(row);
+    }
+  }
+  function uiCoinUps(){
+    coinUpList.innerHTML = '';
+    for(const u of COIN_UPS){
+      const lvl = S.coinUps[u.key]||0;
+      const cost = costFor(u.baseCost, u.growth, lvl);
+      const can = S.coins >= cost;
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <div class="meta">
+          <div><b>${u.name}</b> <span class="small">Lv.${lvl}</span></div>
+          <div class="small">${u.desc}</div>
+          <div class="cost">コスト: ${fmt(cost)}💰</div>
+        </div>
+        <button class="btn ${can?'primary':''}" ${can?'':'disabled'}>購入</button>`;
+      row.querySelector('button').onclick = ()=>{
+        if(S.coins < cost) return;
+        S.coins -= cost;
+        S.coinUps[u.key] = lvl + 1;
+        uiAll();
+      };
+      coinUpList.appendChild(row);
+    }
+  }
+  function uiGemUps(){
+    gemUpList.innerHTML = '';
+    for(const u of GEM_UPS){
+      const lvl = S.gemUps[u.key]||0;
+      const cost = costFor(u.baseCost, u.growth, lvl);
+      const can = S.gems >= cost;
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <div class="meta">
+          <div><b>${u.name}</b> <span class="small">Lv.${lvl}</span> <span class="tiny">(${u.desc})</span></div>
+          <div class="cost">コスト: ${fmt(cost)}💎</div>
+        </div>
+        <button class="btn ${can?'warn':''}" ${can?'':'disabled'}>恒久強化</button>`;
+      row.querySelector('button').onclick = ()=>{
+        if(S.gems < cost) return;
+        S.gems -= cost;
+        S.gemUps[u.key] = lvl + 1;
+        uiAll();
+        save();
+      };
+      gemUpList.appendChild(row);
+    }
+  }
+  function uiInventory(){
+    invList.innerHTML = '';
+    for(const it of ITEMS){
+      const cnt = S.items[it.key]||0;
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <div class="meta">
+          <div><b>${it.name}</b> <span class="small">x${cnt}</span></div>
+          <div class="small">${it.desc} （合計${Math.round((1+cnt*it.per-1)*100)}%）</div>
+        </div>
+        <div class="tiny">恒久</div>`;
+      invList.appendChild(row);
+    }
+  }
+  function uiAll(){ uiTop(); updateHpBar(); uiMercs(); uiCoinUps(); uiGemUps(); uiInventory(); }
+
+  // ======= Effects =======
+  function popFloat(text){
+    const span = document.createElement('div');
+    span.className = 'floating';
+    span.style.left = (monsterEl.offsetLeft + 110 + (Math.random()*80-40)) + 'px';
+    span.style.top = (monsterEl.offsetTop + 80 + (Math.random()*40-20)) + 'px';
+    span.textContent = text;
+    span.style.opacity = '1';
+    document.body.appendChild(span);
+    const dy = -40 - Math.random()*20;
+    const dur = 600 + Math.random()*300;
+    const start = performance.now();
+    function anim(t){
+      const p = clamp((t-start)/dur,0,1);
+      span.style.transform = `translateY(${dy*p}px)`;
+      span.style.opacity = String(1-p);
+      if(p<1) requestAnimationFrame(anim); else span.remove();
+    }
+    requestAnimationFrame(anim);
+  }
+  function flash(msg){
+    const n = document.createElement('div');
+    n.style.position='fixed';n.style.left='50%';n.style.top='24px';n.style.transform='translateX(-50%)';
+    n.style.background='rgba(15,23,42,.9)';n.style.border='1px solid #243042';n.style.padding='10px 14px';n.style.borderRadius='12px';
+    n.style.fontWeight='800';n.style.zIndex='9999';
+    n.textContent = msg;
+    document.body.appendChild(n);
+    setTimeout(()=>{n.remove()}, 1600);
+  }
+
+  // ======= Controls =======
+  function doClickAttack(){ hit(clickDamage()); }
+  document.addEventListener('keydown', (e)=>{
+    if(e.code==='Space'){ e.preventDefault(); doClickAttack(); }
+  });
+  const el$ = s=>document.querySelector(s);
+  el$('#attackBtn').onclick = doClickAttack;
+  monsterEl.onclick = doClickAttack;
+  el$('#nextBtn').onclick = ()=>{ nextFloor(); uiAll(); };
+  el$('#saveBtn').onclick = ()=>{ save(); flash('セーブしました'); };
+  el$('#wipeBtn').onclick = ()=>{
+    if(confirm('セーブデータを削除しますか？')){
+      localStorage.removeItem('clickHeroLite.save'); location.reload();
+    }
+  };
+  rebirthBtn.onclick = doRebirth;
+
+  // ======= Main Loops =======
+  let last = performance.now();
+  function loop(t){
+    const dt = (t-last)/1000; last = t;
+    // DPS tick
+    const dps = totalDps();
+    if(dps>0){
+      const dmg = dps * dt;
+      S.monsterHP = clamp(S.monsterHP - dmg, 0, S.monsterMax);
+      if(S.monsterHP<=0){ onKill(); }
+      updateHpBar();
+    }
+
+    // Boss timer tick
+    if(S.isBoss){
+      S.bossTimeLeft = clamp(S.bossTimeLeft - dt, 0, BOSS_TIMER_SEC);
+      updateBossTimer();
+      if(S.bossTimeLeft<=0 && S.monsterHP>0){ onBossTimeout(); }
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  // autosave
+  setInterval(()=>{ save(); }, 10000);
+
+  // ======= Boot =======
+  load();
+  S.isBoss = floorIsBoss(S.floor);
+  S.monsterMax = floorMonsterHP(S.floor);
+  S.monsterHP = clamp(S.monsterHP, 1, S.monsterMax);
+  if(S.isBoss && (!S.bossTimeLeft || S.bossTimeLeft> BOSS_TIMER_SEC)) S.bossTimeLeft = BOSS_TIMER_SEC;
+  spawnMonster();
+  uiAll();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
