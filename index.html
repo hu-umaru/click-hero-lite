@@ -586,14 +586,12 @@
       const boosts = Math.floor(lvl/10);
       const mult = Math.pow(1.1, boosts);
       const total = each*lvl*mult;
-      // レベル横のステータス（DPS倍率の累積情報）
-      const statusText = boosts > 0 ? `（${boosts} / x${(mult).toFixed(2)}）` : '';
       const row = document.createElement('div');
       row.className = 'row';
       row.innerHTML = `
         <div class="meta">
           <div><b>${m.name}</b> <span class="small">Lv.${lvl}${statusText}</span></div>
-          <div class="small">+${fmt(each)} DPS/Lv <br>合計: <b>${fmt(total)}</b> DPS</div>
+          <div class="small">+${fmt(each)} DPS/Lv (x${(mult).toFixed(2)}) <br>合計: <b>${fmt(total)}</b> DPS</div>
           <div class="cost">コスト: ${fmt(cost)}💰</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
