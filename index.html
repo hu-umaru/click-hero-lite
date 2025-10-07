@@ -571,38 +571,29 @@
     for(const m of MERCS){
       const lvl = S.mercs[m.key]||0;
       const each = m.baseDps;
-      
-      // [傭兵ボタンのテキスト切り替え]
-      const buttonText = lvl === 0 ? "雇用" : "強化";
-      
+      // [ボタンテキストの修正]
+      let buttonText;
+      if (lvl === 0) {
+        buttonText = "雇用"; // Lv.0
+      } else if (lvl > 0 && lvl % 10 === 9) {
+        buttonText = "大強化"; // Lv.9, 19, 29...の時
+      } else {
+        buttonText = "強化"; // 上記以外
+      }
       const cost = costFor(m.baseCost, m.growth, lvl);
       const canBuy = S.coins >= cost;
-      
-      // [大強化の表示ロジック]
-      // DPS計算自体は元のロジックを維持し、累積倍率を算出
+      // DPS計算とレベル横のステータス表示
       const boosts = Math.floor(lvl/10);
       const mult = Math.pow(1.1, boosts);
       const total = each*lvl*mult;
-
-      let boostText = '';
-      // 現在のレベルが10の倍数に達した時（Lv.10, Lv.20, ...）のみ「大強化！」を表示
-      if (lvl > 0 && lvl % 10 === 0) {
-          // CSSで強調するために<span>タグで囲む
-          boostText = ' <span style="color:var(--accent);font-weight:700">大強化！</span>';
-      }
-      
-      // 累計倍率(x...)は、ボーナスを獲得したレベルからは常に表示
-      const cumulativeMultText = boosts > 0 ? ` (x${(mult).toFixed(2)})` : '';
-      
-      // Lv.ステータスに結合
-      const statusText = cumulativeMultText + boostText;
-
+      // レベル横のステータス（DPS倍率の累積情報）
+      const statusText = boosts > 0 ? `（${boosts} / x${(mult).toFixed(2)}）` : '';
       const row = document.createElement('div');
       row.className = 'row';
       row.innerHTML = `
         <div class="meta">
           <div><b>${m.name}</b> <span class="small">Lv.${lvl}${statusText}</span></div>
-          <div class="small">+${fmt(each)} DPS /Lv ・<br>合計: <b>${fmt(total)}</b> DPS</div>
+          <div class="small">+${fmt(each)} DPS/Lv <br>合計: <b>${fmt(total)}</b> DPS</div>
           <div class="cost">コスト: ${fmt(cost)}💰</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
