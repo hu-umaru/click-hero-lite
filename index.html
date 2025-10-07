@@ -289,10 +289,10 @@
 
   // ======= Boss Timeout =======
   function onBossTimeout(){
-    // ボス撃破に失敗：一つ前の通常階に戻す
-    const prev = Math.max(1, S.floor-1);
+    // ボス撃破に失敗：5つ前の通常階に戻す
+    const prev = Math.max(1, S.floor-5);
     S.floor = prev;
-    flash('ボス撃破失敗… フロアを一段階戻りました');
+    flash('ボス撃破失敗… 5フロア戻りました');
     spawnMonster();
   }
 
@@ -389,7 +389,7 @@
       row.innerHTML = `
         <div class="meta">
           <div><b>${m.name}</b> <span class="small">Lv.${lvl}${boosts>0? `（大強化×${boosts} / x${(mult).toFixed(2)}）`:''}</span></div>
-          <div class="small">+${fmt(each)} DPS /Lv ・ 合計: <b>${fmt(total)}</b> DPS</div>
+          <div class="small">+${fmt(each)} DPS/Lv <br>合計: <b>${fmt(total)}</b> DPS</div>
           <div class="cost">コスト: ${fmt(cost)}💰</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
