@@ -505,7 +505,7 @@
   function canRebirth(){ return S.floor >= REBIRTH_MIN_FLOOR; }
   function previewRebirthGems(){
     if(!canRebirth()) return 0;
-    return Math.floor((S.floor - REBIRTH_MIN_FLOOR + 10) / 10);
+    return Math.floor((S.floor - REBIRTH_MIN_FLOOR + 10) / 2);
   }
   function doRebirth(){
     if(!canRebirth()) return;
