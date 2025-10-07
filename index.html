@@ -138,7 +138,7 @@
   const BOSS_REWARD_GEMS = f=> 1 + Math.floor(f/25); // simple formula
   const GOLD_REWARD = f=> 1 + Math.floor(Math.pow(f,1.25));
   const REBIRTH_MIN_FLOOR = 50;
-  const ITEM_DROP_RATE = 0.06; // 6% くらい
+  const ITEM_DROP_RATE = 0.01; // アイテムのドロップ率 1%
 
   // コインアップ・ジェムアップ
   const COIN_UPS = [
@@ -378,6 +378,7 @@
     for(const m of MERCS){
       const lvl = S.mercs[m.key]||0;
       const each = m.baseDps;
+      const buttonText = lvl === 0 ? "雇用" : "強化";
       const cost = costFor(m.baseCost, m.growth, lvl);
       const canBuy = S.coins >= cost;
       const boosts = Math.floor(lvl/10);
@@ -392,7 +393,7 @@
           <div class="cost">コスト: ${fmt(cost)}💰</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
-          <button class="btn ${canBuy?'good':''}" ${canBuy?'':'disabled'} data-key="${m.key}">雇用/強化</button>
+          <button class="btn ${canBuy?'good':''}" ${canBuy?'':'disabled'} data-key="${m.key}">${buttonText}</button>
         </div>`;
       row.querySelector('button').onclick = ()=>{
         if(S.coins < cost) return;
