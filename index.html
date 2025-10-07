@@ -592,7 +592,7 @@
       row.innerHTML = `
         <div class="meta">
           <div><b>${m.name}</b> <span class="small">Lv.${lvl}</span></div>
-          <div class="small">+${fmt(each)} DPS/Lv (x${mult}) <br>合計: <b>${fmt(total)}</b> DPS</div>
+          <div class="small">+${fmt(each)} DPS/Lv (x${mult.toFixed(2)}) <br>合計: <b>${fmt(total)}</b> DPS</div>
           <div class="cost">コスト: ${fmt(cost)}💰</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
