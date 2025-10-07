@@ -261,7 +261,7 @@
       </div>
       <footer>
         <button class="btn primary" id="attackBtn">クリック攻撃 (スペース)</button>
-        <button class="btn good" id="nextBtn" title="今の敵をスキップ">▶ 次のフロア</button>
+        <button class="btn danger" id="surrenderBtn" style="display:none" title="ボス戦から撤退し5フロア戻る">🏳 降参</button>
         <button class="btn warn" id="rebirthBtn" disabled>転生 (ジェム獲得)</button>
         <span class="tiny" id="rebirthInfo">転生はフロア50以上で解放</span>
       </footer>
@@ -284,6 +284,15 @@
       <div class="inv-list" id="invList"></div>
     </div>
   </div>
+  <footer id="globalFooter">
+    <div id="speedControls">
+      ゲーム速度:
+      <button class="btn primary" data-speed="1" id="speed1">1x</button>
+      <button class="btn" data-speed="2" id="speed2">2x</button>
+      <button class="btn" data-speed="5" id="speed5">5x</button>
+      <button class="btn" data-speed="10" id="speed10">10x</button>
+    </div>
+  </footer>
 </div>
 
 <script>
@@ -355,6 +364,7 @@
     items: {}, // key -> count (永久)
     unspentBossGems: 0,
     bestFloor: 1,
+    speedMult: 1, // NEW: ゲーム速度倍率
   };
 
   // init collections
@@ -375,6 +385,7 @@
       COIN_UPS.forEach(u=> S.coinUps[u.key] ??= 0);
       GEM_UPS.forEach(u=> S.gemUps[u.key] ??= 0);
       ITEMS.forEach(it=> S.items[it.key] ??= 0);
+      S.speedMult ??= 1; // NEW: 速度倍率を初期化
     }catch(e){console.warn("Load failed",e)}
   }
 
@@ -481,13 +492,21 @@
     spawnMonster();
   }
 
-  // ======= Boss Timeout =======
+  // ======= Boss Timeout / Surrender =======
   function onBossTimeout(){
     // ボス撃破に失敗：5つ前の通常階に戻す
     const prev = Math.max(1, S.floor-5);
     S.floor = prev;
     flash('ボス撃破失敗… 5フロア戻りました');
     spawnMonster();
+  }
+  
+  // NEW: 降参処理
+  function doSurrender(){
+    if(!S.isBoss) return;
+    onBossTimeout(); // 既存のフロアロールバック処理を流用
+    uiAll();
+    save();
   }
 
   // ======= Rebirth =======
@@ -535,6 +554,8 @@
   const coinUpList = el('#coinUpList');
   const gemUpList = el('#gemUpList');
   const invList = el('#invList');
+  const surrenderBtn = el('#surrenderBtn'); // NEW
+  const speedControls = el('#speedControls'); // NEW
 
   function uiMonster(){
     const name = monsters[(S.floor-1) % monsters.length];
@@ -543,6 +564,7 @@
     goldReward.textContent = fmt(GOLD_REWARD(S.floor));
     bossFlag.style.display = S.isBoss? 'inline-block':'none';
     bossTimerWrap.style.display = S.isBoss? 'inline-flex':'none';
+    surrenderBtn.style.display = S.isBoss? 'inline-block':'none'; // NEW: 降参ボタンの表示切替
     updateHpBar();
     updateBossTimer();
   }
@@ -670,7 +692,18 @@
       invList.appendChild(row);
     }
   }
-  function uiAll(){ uiTop(); updateHpBar(); uiMercs(); uiCoinUps(); uiGemUps(); uiInventory(); }
+
+  // NEW: ゲーム速度UI
+  function uiSpeed(){
+    speedControls.querySelectorAll('.btn').forEach(btn => {
+      btn.classList.remove('primary');
+      if (parseFloat(btn.dataset.speed) === S.speedMult) {
+        btn.classList.add('primary');
+      }
+    });
+  }
+
+  function uiAll(){ uiTop(); updateHpBar(); uiMercs(); uiCoinUps(); uiGemUps(); uiInventory(); uiSpeed(); } // MODIFIED: uiSpeedを追加
 
   // ======= Effects =======
   function popFloat(text){
@@ -710,7 +743,9 @@
   const el$ = s=>document.querySelector(s);
   el$('#attackBtn').onclick = doClickAttack;
   monsterEl.onclick = doClickAttack;
-  el$('#nextBtn').onclick = ()=>{ nextFloor(); uiAll(); };
+  // 変更: nextBtnのクリックイベントを削除
+  // el$('#nextBtn').onclick = ()=>{ nextFloor(); uiAll(); }; 
+  el$('#surrenderBtn').onclick = doSurrender; // NEW: 降参ボタンのイベントを設定
   el$('#saveBtn').onclick = ()=>{ save(); flash('セーブしました'); };
   el$('#wipeBtn').onclick = ()=>{
     if(confirm('セーブデータを削除しますか？')){
@@ -719,10 +754,25 @@
   };
   rebirthBtn.onclick = doRebirth;
 
+  // NEW: ゲーム速度コントロールのイベントリスナー
+  speedControls.querySelectorAll('.btn').forEach(btn => {
+    btn.onclick = () => {
+      const newSpeed = parseFloat(btn.dataset.speed);
+      if(newSpeed > 0 && newSpeed !== S.speedMult) {
+        S.speedMult = newSpeed;
+        uiAll(); // UIを更新してアクティブなボタンを表示
+        save();
+      }
+    };
+  });
+
+
   // ======= Main Loops =======
   let last = performance.now();
   function loop(t){
-    const dt = (t-last)/1000; last = t;
+    // 変更: 速度倍率を適用
+    const dt = ((t-last)/1000) * S.speedMult;
+    last = t;
     // DPS tick
     const dps = totalDps();
     if(dps>0){
