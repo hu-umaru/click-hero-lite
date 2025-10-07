@@ -654,7 +654,7 @@
       row.className = 'row';
       row.innerHTML = `
         <div class="meta">
-          <div><b>${u.name}</b> <span class="small">Lv.${lvl}</span> <span class="tiny">(${u.desc})</span></div>
+          <div><b>${u.name}</b> <span class="small">Lv.${lvl}</span> <span class="tiny"><br>(${u.desc})</span></div>
           <div class="cost">コスト: ${fmt(cost)}💎</div>
         </div>
         <button class="btn ${can?'warn':''}" ${can?'':'disabled'}>強化</button>`;
